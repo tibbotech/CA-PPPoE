@@ -1,0 +1,18 @@
+include "global.tbh"
+
+'====================================================================
+sub callback_pppoe_ok()
+	sock.num=tcp_sock_o
+	sock.connect
+end sub
+
+'--------------------------------------------------------------------
+sub callback_pppoe_failure(pppoe_code as en_pppoe_status_codes)
+	sock.num=tcp_sock_o
+	sock.discard
+end sub
+
+'--------------------------------------------------------------------
+sub callback_pppoe_pre_buffrq(required_buff_pages as byte)
+end sub
+

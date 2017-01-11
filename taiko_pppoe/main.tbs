@@ -1,0 +1,75 @@
+include "global.tbh"
+
+'--------------------------------------------------------------------
+const ADSL_NAME="USERNAME"			'<----- CHANGE THIS AS NEEDED
+const ADSL_PASSWORD="PASSWORD"	'<----- CHANGE THIS AS NEEDED
+const REMOTE_IP="59.120.32.27"			'<----- CHANGE THIS AS NEEDED
+const REMOTE_PORT=40000					'<----- CHANGE THIS AS NEEDED
+
+'--------------------------------------------------------------------
+dim tcp_sock_o as byte
+
+'====================================================================
+sub on_sys_init()
+	dim res as en_pppoe_status_codes
+	
+	'----- this is for the outgoing test connection
+	tcp_sock_o=sock_get("TCPA")
+	sock.num=tcp_sock_o
+	sock.txbuffrq(1)
+	sock.rxbuffrq(1)
+	sys.buffalloc
+	sock.protocol=PL_SOCK_PROTOCOL_TCP
+	sock.targetip=REMOTE_IP
+	sock.targetport=REMOTE_PORT
+	sock.targetinterface=PL_SOCK_INTERFACE_PPPOE
+	'----- end
+
+	res=pppoe_start(ADSL_NAME,ADSL_PASSWORD)
+end sub
+
+'--------------------------------------------------------------------
+sub on_sock_data_arrival()
+	dim s as string(32)
+	
+	pppoe_proc_data()
+
+	'----- this is for the outgoing test connection
+	if sock.num=tcp_sock_o then
+		s=sock.getdata(255)
+		pat.play("-***",PL_PAT_CANINT)
+	end if
+	'----- end
+end sub
+
+'--------------------------------------------------------------------
+sub on_sys_timer()
+	pppoe_proc_timer()
+
+	'----- this is for the outgoing test connection
+	sock.num=tcp_sock_o
+	if sock.statesimple=PL_SSTS_EST then
+		sock.setdata("ABC")
+		sock.send
+	end if
+	'----- end
+end sub
+
+'--------------------------------------------------------------------
+sub on_sock_event(newstate as pl_sock_state, newstatesimple as pl_sock_state_simple)
+	'----- this is for the outgoing test connection
+	if sock.num=tcp_sock_o then
+		pat.play("-***",PL_PAT_CANINT)
+	end if
+	'----- end
+end sub
+
+'--------------------------------------------------------------------
+sub on_pat()
+	'----- this is for the outgoing test connection
+	sock.num=tcp_sock_o
+	if sock.statesimple=PL_SSTS_EST then
+		pat.play("G~",PL_PAT_CANINT)
+	end if
+	'----- end
+end sub

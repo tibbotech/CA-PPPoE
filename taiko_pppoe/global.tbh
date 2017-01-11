@@ -1,0 +1,9 @@
+'DEFINES-------------------------------------------------------------
+#define PPPOE_DEBUG_PRINT 1
+
+'INCLUDES------------------------------------------------------------
+include "sock\trunk\sock.tbh"
+include "pppoe\trunk\pppoe.tbh"
+
+'DECLARATIONS--------------------------------------------------------
+declare tcp_sock_o as byte
